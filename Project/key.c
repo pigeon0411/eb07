@@ -199,14 +199,14 @@ static u32 key_ctl_check(void)
 		if(i==0)
 		{
 
-			if(key_tmp == 1)
+			if(key_tmp)
 			{
 	
 				Delay_ms(50);
 	
 				key_tmp = GPIO_ReadInputPin(key_port_in[i],key_pin_in[i]);
 	
-				if(key_tmp == 1)
+				if(key_tmp)
 				{
 	
 					key_pre = i+1;
@@ -398,6 +398,9 @@ void key_handle(u32 val)
 uint8_t Key_Scan(void)
 {
 	static u32 k;
+
+
+	
 
 	k = key_ctl_check();
 	if(k != 0)
