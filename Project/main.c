@@ -47,6 +47,8 @@
 
 #endif
 
+extern uint8_t Key_Scan(void);
+
 
 /* Private defines -----------------------------------------------------------*/
 #define	ADC_INT		0
@@ -74,7 +76,7 @@ __IO uint32_t TimingDelayNoBlock_Cnt = 0;
 u16 power_on_u3_delay_cnt = 0; //unit: ms
 u16 power_off_u3_delay_cnt = 0; //unit: ms
 
-u16 voltage_sys_error_overtime_cnt = 0;
+u32 voltage_sys_error_overtime_cnt = 0;
 
 u16 monitor_voltage_delay_cnt = 0; //unit: ms
 
@@ -265,14 +267,10 @@ void my_device_init(void)
 	TIM4_Config();
 
 
- #if ADC_MY_ENABLE
-    // ADC 引脚初始化
-    ADC_init();
-#endif
-	PWM_Init();
+	Key_init();
 
-	heater_pin_init();
-	fan_pin_init();
+
+
 	
 }	
 
@@ -378,7 +376,7 @@ void TimingDelay_Decrement(void)
     static u8 axis_data_get_time=0;
 
 	
-	if(voltage_sys_error_overtime_cnt < 0xFFFF)
+	if(voltage_sys_error_overtime_cnt < 0xFFFFFFFF)
 	{
 		voltage_sys_error_overtime_cnt++;
 	}
@@ -1488,437 +1486,20 @@ void pwm_adjust_current(void)
 
 #endif
 
-uint8_t Key_Scan()
-{
-    uint8_t key_value;
 
-	
-    key_value=GPIO_ReadInputData(GPIOC);
-    if( (key_value & GPIO_PIN_6) && (key_value & GPIO_PIN_7))
-    {
-		key_value = 3;//key_value = 2;
-	}
-	else if(!(key_value & GPIO_PIN_6) && (key_value & GPIO_PIN_7))
-	{
-		key_value = 2;//key_value = 3;
-	}
-	else if((key_value & GPIO_PIN_6)&&!(key_value & GPIO_PIN_7))
-	{
-		key_value = 4;
-	}
-	else
-		key_value = 2;
 
-		
-    return key_value;
-} 
-
-u8 current_get(void)
-{
-	if(system_current_type == 1)
-		return 1;
-	else
-	{
-
-		return Key_Scan();
-	}
-}
-
-u8 temperature_poweroff_retry_cnt =0;
-
-
-
-
-void PD2_temperature_monitor(void)
-{
-	u16 temp;
-
-	if(!pd2_check_delay_cnt)
-	{
-		temp = adc1_read_by_chanel(TEMPERATURE_ADC_PORT);
-		if(temp < VOLTAGE_ADC_PD2_MIN || temp > VOLTAGE_ADC_PD2_MAX)
-		{
-			if(temp < 2850)// 超过40度 ADC值越小，温度越高
-			{
-				Fan_power_on_off_set(ON);
-
-				led_blink_set(BLINK_FAST);
-			}
-			else if(temp > 3100)
-			{
-				Fan_power_on_off_set(OFF);
-
-			}
-			
-			if(temperature_poweroff_retry_cnt > 5 )
-			{
-				
-				
-			}
-			else
-				temperature_poweroff_retry_cnt++;
-		}
-		else if(temp < VOLTAGE_ADC_PD2_HEATER_MIN || temp > VOLTAGE_ADC_PD2_HEATER_MAX)
-		{
-			if(temp < 2850)// 超过40度 ADC值越小，温度越高
-			{
-				heater_power_on_off_set(ON);
-			}
-			else if(temp > 3100)
-			{
-				heater_power_on_off_set(OFF);
-
-			}
-			
-			if(temperature_poweroff_retry_cnt > 5 )
-			{
-				led_blink_set(BLINK_STOP);
-				
-			}
-			else
-				temperature_poweroff_retry_cnt++;
-		}
-		else
-		{
-			temperature_poweroff_retry_cnt = 0;
-
-			led_blink_set(BLINK_NORMAL);
-		}
-		pd2_check_delay_cnt = 1000;
-	}
-}
-
-//6: 500mv,12A:
-
-
-u8 pd5_poweroff_check_retry_cnt = 0;
-
-
-void PD5_voltage_monitor(void)
-{
-	u16 temp;
-	//u8 Key_val = 0;
-	//static u8 key_val_pre = 0;
-	
-	u16 voltemp = VOLTAGE_ADC_PD5_NOT6A_POWEROFF_VAL;
-
-	
-	if(system_current_type == 1)
-	{
-		voltemp = VOLTAGE_ADC_PD5_6A_POWEROFF_VAL;
-	}
-
-	if(!check_pd5_cnt)
-	{
-		temp = adc1_read_by_chanel(VOLTAGE_SYSTEM_ADC_PORT);
-
-		if(temp < voltemp)
-		{
-			if(pd5_poweroff_check_retry_cnt > 10)
-			{
-				led_blink_set(BLINK_FAST);
-				pwm_power_off();
-				while(1)
-				{
-
-					temp = adc1_read_by_chanel(VOLTAGE_SYSTEM_ADC_PORT);
-					if(temp > voltemp)
-						break;
-				}
-			}
-			else
-			{
-				temp = adc1_read_by_chanel(VOLTAGE_SYSTEM_ADC_PORT);
-				if(temp < voltemp)
-					pd5_poweroff_check_retry_cnt++;
-			}
-		}
-		else
-			pd5_poweroff_check_retry_cnt = 0;
-
-		check_pd5_cnt = 200;
-	}
-}
-
-
-
-void adc_pd3_check(void)
-{
-	u16 temp;
-	u8 detect_system_verify_times = 0;
-	
-	while(1)
-	{	 
-		Delay_ms(100);
-		temp = adc1_read_by_chanel(VOLTAGE_SYSTEM_VERIFY_ADC_PORT);
-
-		
-		
-		if(temp>=VOLTAGE_SYSTEM_12V_MIN && temp<=VOLTAGE_SYSTEM_12V_MAX)
-		{
-
-			if(detect_system_verify_times >= 5)
-			{
-				voltage_system_type = VOLTAGE_SYSTEM_12V_TYPE;
-				break;
-
-			}
-			else
-				detect_system_verify_times++;
-			
-			
-		}
-		else
-		{
-			//system_voltage_error();
-			detect_system_verify_times = 0;
-			continue;
-		}
-	}
-	
-}
-
-
-void Fan_power_on_off_set(u8 mode)
-{
-	if(mode == OFF)
-	{
-		GPIO_WriteLow(GPIOA,GPIO_PIN_1);
-		GPIO_WriteLow(GPIOA,GPIO_PIN_2);
-
-	}
-	else
-	{
-
-	    GPIO_WriteHigh(GPIOA,GPIO_PIN_1);
-	    GPIO_WriteHigh(GPIOA,GPIO_PIN_2);
-
-	}
-}
-
-void heater_power_on_off_set(u8 mode)
-{
-	if(mode == OFF)
-	{
-		GPIO_WriteLow(GPIOB,GPIO_PIN_4);
-		GPIO_WriteLow(GPIOB,GPIO_PIN_5);
-		GPIO_WriteLow(GPIOC,GPIO_PIN_4);
-		GPIO_WriteLow(GPIOC,GPIO_PIN_3);
-
-	}
-	else
-	{
-		GPIO_WriteHigh(GPIOB,GPIO_PIN_4);
-		GPIO_WriteHigh(GPIOB,GPIO_PIN_5);
-		GPIO_WriteHigh(GPIOC,GPIO_PIN_4);
-		GPIO_WriteHigh(GPIOC,GPIO_PIN_3);
-	}
-}
-
-void PD2_temperature_check(void)
-{
-	u16 temp;
-	while(1)
-	{
-		Delay_ms(200);
-		temp = adc1_read_by_chanel(TEMPERATURE_ADC_PORT);
-		if(temp >= 800 && temp <= 4500)
-		{
-			if(temp < 2900)// 超过40度 ADC值越小，温度越高
-			{
-				Fan_power_on_off_set(ON);
-			}
-			else if(temp > 3000)
-			{
-				Fan_power_on_off_set(OFF);
-
-			}
-			break;
-		}
-		else
-			continue;
-	}
-
-}
-
-void adc_pc4_check(void)
-{
-	u16 temp;
-	u8 detect_system_verify_times = 0;
-	
-	while(1)
-	{	 
-		Delay_ms(100);
-		temp = adc1_read_by_chanel(ADC_PC4_CHN);
-
-		
-		
-		if(temp>=VOLTAGE_ADC_PC4_MIN && temp<=VOLTAGE_ADC_PC4_MAX)
-		{
-
-			if(detect_system_verify_times >= 5)
-			{
-				voltage_system_type = VOLTAGE_SYSTEM_12V_TYPE;
-				break;
-
-			}
-			else
-				detect_system_verify_times++;
-			
-			
-		}
-		else
-		{
-			//system_voltage_error();
-			detect_system_verify_times = 0;
-			continue;
-		}
-	}
-	
-}
-
-
-void pb5_poweron_delay_check(void)
-{
-	u8 temp = 0;
-
-	temp = GPIO_ReadInputPin(GPIOB,GPIO_PIN_5);
-
-	if(temp)
-	{
-		Delay_ms(10);
-		temp = GPIO_ReadInputPin(GPIOB,GPIO_PIN_5);
-		if(temp)
-			delay_second(20);
-
-	}
-}
-
-void power_on_check_first(void)
-{
-
-
-	adc_pd3_check();
-	
-	adc_pc4_check();
-	pb5_poweron_delay_check();
-
-	PD2_temperature_check();
-
-}
-
-
-void adc_pd3_monitor(u8 type)
-{
-	u16 temp;
-	if(!monitor_voltage_delay_cnt)
-	{
-			if(voltage_sys_error_overtime_cnt >= 60000)
-			{
-				;
-			}
-						
-			//Delay_ms(10);
-			temp = adc1_read_by_chanel(VOLTAGE_SYSTEM_VERIFY_ADC_PORT);
-			if(temp>=VOLTAGE_SYSTEM_12V_POWERON_MIN&& temp<=VOLTAGE_SYSTEM_12V_POWERON_MAX)
-			{
-				voltage_sys_error_overtime_cnt = 0;
-
-				if(system_current_type == 12)
-				{
-					if(temp >= VOLTAGE_ADC_PD3_6A_MIN && temp <= VOLTAGE_ADC_PD3_12A_TO_6A_VALUE)
-					{
-						system_current_type = 1;
-						//led_blink_set( BLINK_SLOW);
-					}
-				}
-				else
-				{
-
-					if(temp >= VOLTAGE_ADC_PD3_6A_MIN && temp <= VOLTAGE_ADC_PD3_6A_MAX)
-					{
-						system_current_type = 1;
-						//led_blink_set( BLINK_SLOW);
-					}
-					else
-					{	
-						if(temp >= VOLTAGE_ADC_PD3_12A_MIN)
-						{	
-							system_current_type = 12;//= Key_Scan();
-							//led_blink_set( BLINK_NORMAL);
-
-						}
-						
-					}
-				}
-			}
-			else 
-			{
-					temp = adc1_read_by_chanel(VOLTAGE_SYSTEM_VERIFY_ADC_PORT);
-					if(system_voltage_power_off_num >= SYSTEM_VOLTAGE_POWER_OFF_TIMES)
-					{
-						if(temp<VOLTAGE_SYSTEM_12V_POWEROFF_MIN || temp>VOLTAGE_SYSTEM_12V_POWERON_MAX)
-						{
-							led_blink_set( BLINK_OFF);
-							pwm_off_and_system_reboot(1);
-							
-						}
-
-						system_voltage_power_off_num = 0;
-					}
-					else
-					{
-						if(temp<VOLTAGE_SYSTEM_12V_POWEROFF_MIN || temp>VOLTAGE_SYSTEM_12V_POWERON_MAX+10)
-						{
-							system_voltage_power_off_num++;
-							
-
-						}
-					}
-					
-			}
-			
-		monitor_voltage_delay_cnt = 50; //check one time per 20 ms
-	}
-}
-
-void PA3_check(void)
-{
-	
-	u8 temp = 0;
-
-	while(1)
-	{
-		temp = GPIO_ReadInputPin(GPIOA,GPIO_PIN_3);
-
-		if(temp)
-		{
-			Delay_ms(10);
-
-			temp = GPIO_ReadInputPin(GPIOA,GPIO_PIN_3);
-			if(temp)
-			{
-				break;
-
-			}
-			
-		}
-		
-		Delay_ms(10);
-		pwm_off_and_system_reboot(1);
-	}
-
-}
 
 void main(void)
 { 
 	my_device_init();
 
 	Delay_ms(500);
-				
+
+
+	voltage_sys_error_overtime_cnt = 0;//用于检测按键
 	while (1)
 	{
-		PD2_temperature_monitor();
+		Key_Scan();
 
 	}	
 
