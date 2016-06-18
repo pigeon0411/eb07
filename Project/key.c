@@ -97,7 +97,7 @@ OUT_PC4=0,
 	OUT_PD2,
 	OUT_PD3,
 	OUT_PD4,
-
+OUT_NONE
 };
 
 GPIO_TypeDef * key_port_out[]={
@@ -125,7 +125,7 @@ void out_port_set_all(u8 mode)
 			if(i != OUT_PD4)
 			GPIO_WriteHigh(key_port_out[i],key_pin_out[i]);
 
-			led_out_state_table[i] = 1;
+			//led_out_state_table[i] = 1;
 		}
 	}
 	else
@@ -136,12 +136,15 @@ void out_port_set_all(u8 mode)
 			if(i != OUT_PD4)
 			GPIO_WriteLow(key_port_out[i],key_pin_out[i]);
 
-			led_out_state_table[i] = 0;
+			//led_out_state_table[i] = 0;
 
 		}
 	}
 
 }
+
+
+enum out_pin_type  pre_out_state = OUT_NONE;
 
 void out_port_set_pin(enum out_pin_type  val, u8 mode)
 {
@@ -151,12 +154,16 @@ void out_port_set_pin(enum out_pin_type  val, u8 mode)
 	{
 		GPIO_WriteHigh(key_port_out[val],key_pin_out[val]);
 		led_out_state_table[val] = 1;
+
+		pre_out_state = val;
 	}
 	else
 	{
 
 		GPIO_WriteLow(key_port_out[val],key_pin_out[val]);
-		led_out_state_table[val] = 0;
+		led_out_state_table[val] = 2;
+
+		pre_out_state = val;
 	}
 
 	
@@ -166,12 +173,29 @@ void out_port_set_pin(enum out_pin_type  val, u8 mode)
 void out_port_reverse_pin(enum out_pin_type  val)
 {
 
+	u8 i;
+	
 	GPIO_WriteReverse(key_port_out[val],key_pin_out[val]);
+
+	if(val!=OUT_PC4)
+	for(i=0;i<KEY_OUT_PINS_NUM;i++)
+	{
+		led_out_state_table[i] = 0;
+
+	}
+	led_out_state_table[val] = 3;
 
 
 }
 
+void check_out_clear(void)
+{
 
+	u8 i;
+	out_port_set_all(0);
+
+
+}
 
 u16 key_pre = 0;
 
@@ -286,47 +310,43 @@ void key_handle(u32 val)
 			break;
 
 		case KEY_IN_2_PA1:
-			out_port_set_all(0);
+			//out_port_set_all(0);
+			
+
+			if(led_out_state_table[OUT_PD3] != 3)
+				check_out_clear();
 			Delay_ms(50);
 
-			if(led_out_state_table[OUT_PD3] == 0)
-				out_port_set_pin(OUT_PD3,1);
-			else
-				out_port_set_pin(OUT_PD3,0);
+			out_port_reverse_pin(OUT_PD3);
 			
 			break;
 
 		case KEY_IN_3_PA2:
-			out_port_set_all(0);
+			if(led_out_state_table[OUT_PD2] != 3)
+			check_out_clear();
 			Delay_ms(50);
 
-			
-			if(led_out_state_table[OUT_PD2] == 0)
-				out_port_set_pin(OUT_PD2,1);
-			else
-				out_port_set_pin(OUT_PD2,0);
+				out_port_reverse_pin(OUT_PD2);
 
 			break;
 
 			
 		case KEY_IN_4_PA3:
-			out_port_set_all(0);
+
+			if(led_out_state_table[OUT_PC6] != 3)
+			check_out_clear();
 			Delay_ms(50);
 
 
 			
-			if(led_out_state_table[OUT_PC6] == 0)
-				out_port_set_pin(OUT_PC6,1);
-			else
-				out_port_set_pin(OUT_PC6,0);
+
+				out_port_reverse_pin(OUT_PC6);
 
 			//out_port_set_pin(OUT_PC6,1);
 			Delay_ms(50);
 
-			if(led_out_state_table[OUT_PC4] == 0)
-				out_port_set_pin(OUT_PC4,1);
-			else
-				out_port_set_pin(OUT_PC4,0);
+
+				out_port_reverse_pin(OUT_PC4);
 
 			//out_port_set_pin(OUT_PC4,1);
 
@@ -334,46 +354,42 @@ void key_handle(u32 val)
 			break;
 
 		case KEY_IN_5_PB4:
-			out_port_set_all(0);
+
+			if(led_out_state_table[OUT_PC7] != 3)
+			check_out_clear();
 			Delay_ms(50);
 			//out_port_set_pin(OUT_PC7,1);
 
-			if(led_out_state_table[OUT_PC7] == 0)
-				out_port_set_pin(OUT_PC7,1);
-			else
-				out_port_set_pin(OUT_PC7,0);
+
+				out_port_reverse_pin(OUT_PC7);
 
 
 			Delay_ms(50);
 
-			if(led_out_state_table[OUT_PC4] == 0)
-				out_port_set_pin(OUT_PC4,1);
-			else
-				out_port_set_pin(OUT_PC4,0);
+
+				out_port_reverse_pin(OUT_PC4);
 
 
 			
 			break;
 
 		case KEY_IN_6_PB5:
-			out_port_set_all(0);
+
+			if(led_out_state_table[OUT_PC5] != 3)
+			check_out_clear();
 			Delay_ms(50);
 			//out_port_set_pin(OUT_PC5,1);
 
 			
-			if(led_out_state_table[OUT_PC5] == 0)
-				out_port_set_pin(OUT_PC5,1);
-			else
-				out_port_set_pin(OUT_PC5,0);
+
+				out_port_reverse_pin(OUT_PC5);
 
 
 
 			Delay_ms(50);
 
-			if(led_out_state_table[OUT_PC4] == 0)
-				out_port_set_pin(OUT_PC4,1);
-			else
-				out_port_set_pin(OUT_PC4,0);
+
+				out_port_reverse_pin(OUT_PC4);
 
 
 			
