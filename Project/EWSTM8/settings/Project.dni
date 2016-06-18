@@ -1,0 +1,108 @@
+[DebugChecksum]
+Checksum=984230503
+[DisAssemblyWindow]
+NumStates=_ 1
+State 1=_ 1
+[InstructionProfiling]
+Enabled=_ 0
+[CodeCoverage]
+Enabled=_ 0
+[StackPlugin]
+Enabled=1
+OverflowWarningsEnabled=1
+WarningThreshold=90
+SpWarningsEnabled=1
+WarnHow=0
+UseTrigger=1
+TriggerName=main
+LimitSize=0
+ByteLimit=50
+[TraceHelper]
+Enabled=0
+ShowSource=1
+[Stack]
+FillEnabled=0
+OverflowWarningsEnabled=1
+WarningThreshold=90
+SpWarningsEnabled=1
+WarnLogOnly=1
+UseTrigger=1
+TriggerName=main
+LimitSize=0
+ByteLimit=50
+[CallStack]
+ShowArgs=0
+[Disassembly]
+MixedMode=1
+[InterruptStripe]
+Sort=0
+[CallStackLog]
+Enabled=0
+[DriverProfiling]
+Enabled=0
+Mode=1
+Graph=0
+Symbiont=0
+Exclusions=
+[InterruptLog]
+LogEnabled=0
+SumEnabled=0
+GraphEnabled=0
+ShowTimeLog=1
+ShowTimeSum=1
+SumSortOrder=0
+[DataLog]
+LogEnabled=0
+SumEnabled=0
+GraphEnabled=0
+ShowTimeLog=1
+ShowTimeSum=1
+[Breakpoints2]
+Bp0=_ 1 "STD_CODE2" "{$PROJ_DIR$\..\..\FWLib\src\stm8s_adc1.c}.94.5" 0 0 1 "" 0 ""
+Bp1=_ 0 "STD_CODE2" "{$PROJ_DIR$\..\main.c}.718.2" 0 0 1 "" 0 ""
+Count=2
+[Interrupts]
+Enabled=1
+Irq0=_ 0 1000 0 1000 1 0 0 100 0 1 "TIM4_OVR_UIF 0x8064  25  TIM4_IER.UIE  TIM4_SR.UIF  ITC_SPR6.VECT23SPR"
+Count=1
+[MemoryMap]
+Enabled=0
+Base=0
+UseAuto=0
+TypeViolation=1
+UnspecRange=1
+ActionState=1
+[Trace1]
+Enabled=0
+ShowSource=1
+[DataSample]
+LogEnabled=0
+GraphEnabled=0
+ShowTimeLog=1
+ShowTimeSum=1
+[Log file]
+LoggingEnabled=_ 0
+LogFile=_ ""
+Category=_ 0
+[TermIOLog]
+LoggingEnabled=_ 0
+LogFile=_ ""
+[Breakpoints]
+Bp0=_ "STD_CODE" "{$PROJ_DIR$\..\main.c}.1881.1" 0 0 0 0 "" 0 ""
+Bp1=_ "STD_CODE" "{$PROJ_DIR$\..\main.c}.1875.1" 0 0 0 0 "" 0 ""
+Bp2=_ "STD_CODE" "{$PROJ_DIR$\..\main.c}.1875.1" 1 0 0 0 "" 0 ""
+Count=3
+[Aliases]
+A0=_ "C:\Users\jony\Desktop\AFCI\FWLib\src\stm8s_clk.c" ""
+A1=_ "C:\Users\jony\Desktop\AFCI\FWLib\src\stm8s_gpio.c" ""
+A2=_ "C:\Users\jony\Desktop\AFCI\FWLib\src\stm8s_tim1.c" ""
+A3=_ "C:\Users\jony\Desktop\AFCI\FWLib\src\stm8s_uart1.c" ""
+A4=_ "E:\20140712\U3_AdjustCurrent\FWLib\src\stm8s_clk.c" ""
+A5=_ "G:\ZC\speed-pwm\PWM_new\FWLib\src\stm8s_tim4.c" ""
+A6=_ "G:\嵌入式开发\其他\承接项目\zhaochao\Project2\Module_key\FWLib\src\stm8s_tim4.c" ""
+A7=_ "I:\ZC\speed-pwm\U3_AdjustCurrent\FWLib\src\stm8s_adc1.c" ""
+A8=_ "I:\ZC\speed-pwm\U3_AdjustCurrent\FWLib\src\stm8s_tim4.c" ""
+Count=9
+SuppressDialog=1
+[DebuggerSettings]
+DisableInterruptsWhenStepping=0
