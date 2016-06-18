@@ -25,7 +25,7 @@ if not "%~1" == "" goto debugFile
 
 @echo on 
 
-"E:\Program Files (x86)\IAR Systems\Embedded Workbench 7.3\common\bin\cspybat" -f "F:\eb07\code\Project\EWSTM8\settings\Project.STM8S103.general.xcl" --backend -f "F:\eb07\code\Project\EWSTM8\settings\Project.STM8S103.driver.xcl" 
+"C:\Program Files (x86)\IAR Systems\Embedded Workbench 7.3_2\common\bin\cspybat" -f "F:\eb07\code\Project\EWSTM8\settings\Project.STM8S103.general.xcl" --backend -f "F:\eb07\code\Project\EWSTM8\settings\Project.STM8S103.driver.xcl" 
 
 @echo off 
 goto end 
@@ -34,7 +34,7 @@ goto end
 
 @echo on 
 
-"E:\Program Files (x86)\IAR Systems\Embedded Workbench 7.3\common\bin\cspybat" -f "F:\eb07\code\Project\EWSTM8\settings\Project.STM8S103.general.xcl" "--debug_file=%~1" --backend -f "F:\eb07\code\Project\EWSTM8\settings\Project.STM8S103.driver.xcl" 
+"C:\Program Files (x86)\IAR Systems\Embedded Workbench 7.3_2\common\bin\cspybat" -f "F:\eb07\code\Project\EWSTM8\settings\Project.STM8S103.general.xcl" "--debug_file=%~1" --backend -f "F:\eb07\code\Project\EWSTM8\settings\Project.STM8S103.driver.xcl" 
 
 @echo off 
 :end

@@ -12,9 +12,9 @@ F:\eb07\code\Project\EWSTM8\..\..\..\Utilities\STM8S_EVAL\STM8S-128_EVAL
 -I
 F:\eb07\code\Project\EWSTM8\..\..\..\Utilities\STM8S_EVAL\Common
 -I
-E:\Program Files (x86)\IAR Systems\Embedded Workbench 7.3\stm8\inc
+C:\Program Files (x86)\IAR Systems\Embedded Workbench 7.3_2\stm8\inc
 -I
-E:\Program Files (x86)\IAR Systems\Embedded Workbench 7.3\stm8\inc\c
+C:\Program Files (x86)\IAR Systems\Embedded Workbench 7.3_2\stm8\inc\c
 -I
 F:\eb07\code\Project
 -I
@@ -274,8 +274,8 @@ F:\eb07\Utilities\STM8S_EVAL\Common
 -D__EDG_SYSV=0
 -D__EDG_ANSIC=1
 -D__EDG_CPP11_IL_EXTENSIONS_SUPPORTED=1
--D_DLIB_CONFIG_FILE_HEADER_NAME="E:\Program Files (x86)\IAR Systems\Embedded Workbench 7.3\stm8\LIB\dlstm8mmn.h"
--D_DLIB_CONFIG_FILE_STRING="E:\\Program Files (x86)\\IAR Systems\\Embedded Workbench 7.3\\stm8\\LIB\\dlstm8mmn.h"
+-D_DLIB_CONFIG_FILE_HEADER_NAME="C:\Program Files (x86)\IAR Systems\Embedded Workbench 7.3_2\stm8\LIB\dlstm8mmn.h"
+-D_DLIB_CONFIG_FILE_STRING="C:\\Program Files (x86)\\IAR Systems\\Embedded Workbench 7.3_2\\stm8\\LIB\\dlstm8mmn.h"
 -D__VERSION__="IAR C/C++ Compiler V2.20.1.176 for STM8"
 -D__CODE_MEMORY_LIST1__()=__CODE_MEM_HELPER1__(__code, 0 )
 -D__CODE_MEMORY_LIST2__(_P1)=__CODE_MEM_HELPER2__(__code, 0 ,  _P1 )

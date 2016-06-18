@@ -2412,12 +2412,12 @@
         <option>
           <name>GenCodeModel</name>
           <version>0</version>
-          <state>0</state>
+          <state>1</state>
         </option>
         <option>
           <name>GenDataModel</name>
           <version>0</version>
-          <state>0</state>
+          <state>1</state>
         </option>
         <option>
           <name>GOutputBinary</name>
@@ -2451,7 +2451,7 @@
         </option>
         <option>
           <name>GenRTConfigPath</name>
-          <state>$TOOLKIT_DIR$\LIB\dlstm8ssn.h</state>
+          <state>$TOOLKIT_DIR$\LIB\dlstm8mmn.h</state>
         </option>
         <option>
           <name>GenLibInFormatter</name>
@@ -2537,7 +2537,7 @@
         </option>
         <option>
           <name>IccOptLevel</name>
-          <state>1</state>
+          <state>0</state>
         </option>
         <option>
           <name>IccOptStrategy</name>
@@ -2546,7 +2546,7 @@
         </option>
         <option>
           <name>IccOptLevelSlave</name>
-          <state>1</state>
+          <state>0</state>
         </option>
         <option>
           <name>IccOptAllowList</name>
@@ -2703,7 +2703,7 @@
         </option>
         <option>
           <name>IccCppInlineSemantics</name>
-          <state>0</state>
+          <state>1</state>
         </option>
         <option>
           <name>IccStaticDestr</name>

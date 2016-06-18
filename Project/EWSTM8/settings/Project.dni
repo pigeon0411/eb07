@@ -1,5 +1,5 @@
 [DebugChecksum]
-Checksum=984230503
+Checksum=455358406
 [DisAssemblyWindow]
 NumStates=_ 1
 State 1=_ 1
@@ -75,23 +75,27 @@ ActionState=1
 [Trace1]
 Enabled=0
 ShowSource=1
+[TermIOLog]
+LoggingEnabled=_ 0
+LogFile=_ ""
 [DataSample]
 LogEnabled=0
 GraphEnabled=0
 ShowTimeLog=1
-ShowTimeSum=1
+[Breakpoints]
+Bp0=_ "STD_CODE" "{$PROJ_DIR$\..\main.c}.1535.1" 0 0 0 0 "" 0 ""
+Bp1=_ "STD_CODE" "{$PROJ_DIR$\..\main.c}.1535.1" 0 0 0 0 "" 0 ""
+Bp2=_ "STD_CODE" "{$PROJ_DIR$\..\main.c}.1535.1" 0 0 0 0 "" 0 ""
+Bp3=_ "STD_CODE" "{$PROJ_DIR$\..\key.c}.266.3" 1 0 0 0 "" 0 ""
+Bp4=_ "STD_CODE" "{$PROJ_DIR$\..\key.c}.261.2" 1 0 0 0 "" 0 ""
+Bp5=_ "STD_CODE" "{$PROJ_DIR$\..\key.c}.243.3" 1 0 0 0 "" 0 ""
+Bp6=_ "STD_CODE" "{$PROJ_DIR$\..\key.c}.195.2" 1 0 0 0 "" 0 ""
+Bp7=_ "STD_CODE" "{$PROJ_DIR$\..\key.c}.54.2" 1 0 0 0 "" 0 ""
+Count=8
 [Log file]
 LoggingEnabled=_ 0
 LogFile=_ ""
 Category=_ 0
-[TermIOLog]
-LoggingEnabled=_ 0
-LogFile=_ ""
-[Breakpoints]
-Bp0=_ "STD_CODE" "{$PROJ_DIR$\..\main.c}.1881.1" 0 0 0 0 "" 0 ""
-Bp1=_ "STD_CODE" "{$PROJ_DIR$\..\main.c}.1875.1" 0 0 0 0 "" 0 ""
-Bp2=_ "STD_CODE" "{$PROJ_DIR$\..\main.c}.1875.1" 1 0 0 0 "" 0 ""
-Count=3
 [Aliases]
 A0=_ "C:\Users\jony\Desktop\AFCI\FWLib\src\stm8s_clk.c" ""
 A1=_ "C:\Users\jony\Desktop\AFCI\FWLib\src\stm8s_gpio.c" ""

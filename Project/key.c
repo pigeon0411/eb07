@@ -1,9 +1,13 @@
 #include "key.h"
 
 
+extern void Delay_ms(__IO uint32_t nTime);
 
 
 extern u32 voltage_sys_error_overtime_cnt;
+
+
+u8 led_out_state_table[7] = {0};
 
 
 void Key_Init()
@@ -32,7 +36,12 @@ void Key_Init()
 	GPIO_WriteHigh(GPIOD,GPIO_PIN_4);
 	GPIO_WriteLow(GPIOD,GPIO_PIN_2);
 	GPIO_WriteLow(GPIOD,GPIO_PIN_3);
-	
+
+
+//GPIO_WriteHigh(GPIOD,GPIO_PIN_2);
+
+
+
 	GPIO_WriteLow(GPIOC,GPIO_PIN_4);
 	GPIO_WriteLow(GPIOC,GPIO_PIN_5);
 	GPIO_WriteLow(GPIOC,GPIO_PIN_6);
@@ -40,19 +49,27 @@ void Key_Init()
 
 
 	
+	GPIO_WriteHigh(GPIOC,GPIO_PIN_4);
+	
+	GPIO_WriteHigh(GPIOC,GPIO_PIN_5);
+	GPIO_WriteLow(GPIOC,GPIO_PIN_5);
+	GPIO_WriteLow(GPIOC,GPIO_PIN_4);
+
+	
   
 }
 
 enum key_in_type
 {
-	KEY_IN_NONE,
+	KEY_IN_NONE=0,
 
 	KEY_IN_1_PD5,
+	
+	KEY_IN_5_PB4,
+	KEY_IN_6_PB5,
 	KEY_IN_2_PA1,
 	KEY_IN_3_PA2,
 	KEY_IN_4_PA3,
-	KEY_IN_5_PB4,
-	KEY_IN_6_PB5,
 	KEY_IN_NORMAL
 };
 
@@ -73,7 +90,7 @@ GPIO_Pin_TypeDef key_pin_in[KEY_IN_PINS_NUM]=
 
 enum out_pin_type
 {
-OUT_PC4,
+OUT_PC4=0,
 	OUT_PC5,
 	OUT_PC6,
 	OUT_PC7,
@@ -108,14 +125,18 @@ void out_port_set_all(u8 mode)
 			if(i != OUT_PD4)
 			GPIO_WriteHigh(key_port_out[i],key_pin_out[i]);
 
+			led_out_state_table[i] = 1;
 		}
 	}
 	else
-	{
+	{
+
 		for(i=0;i<KEY_OUT_PINS_NUM;i++)
 		{
 			if(i != OUT_PD4)
 			GPIO_WriteLow(key_port_out[i],key_pin_out[i]);
+
+			led_out_state_table[i] = 0;
 
 		}
 	}
@@ -124,16 +145,21 @@ void out_port_set_all(u8 mode)
 
 void out_port_set_pin(enum out_pin_type  val, u8 mode)
 {
-	u8 i;
+
 
 	if(mode)
 	{
 		GPIO_WriteHigh(key_port_out[val],key_pin_out[val]);
+		led_out_state_table[val] = 1;
 	}
 	else
-	{
+	{
+
 		GPIO_WriteLow(key_port_out[val],key_pin_out[val]);
+		led_out_state_table[val] = 0;
 	}
+
+	
 
 }
 
@@ -170,67 +196,49 @@ static u32 key_ctl_check(void)
 	{
 		key_tmp = GPIO_ReadInputPin(key_port_in[i],key_pin_in[i]);
 
-		if(key_tmp == 1)
+		if(i==0)
 		{
-
-			Delay_ms(50);
-
-			key_tmp = GPIO_ReadInputPin(key_port_in[i],key_pin_in[i]);
 
 			if(key_tmp == 1)
 			{
-				if(key_pre == i+1)
+	
+				Delay_ms(50);
+	
+				key_tmp = GPIO_ReadInputPin(key_port_in[i],key_pin_in[i]);
+	
+				if(key_tmp == 1)
 				{
-					if(long_press_cnt>20)
-					{
-
-						long_press_cnt=0;
-						key_pre = (i+1)|0x9000;
-						long_key_state = 1;
-						return ((i+1)|0x9000);
-					}
-
-					if(long_key_state == 0)
-						long_press_cnt++;
+	
+					key_pre = i+1;
+					return (i+1);
 				}
-				else if((key_pre&0x9000) == i+1)
+			}
+
+		}
+		else
+		{
+			if(key_tmp == 0)
+			{
+
+				Delay_ms(50);
+
+				key_tmp = GPIO_ReadInputPin(key_port_in[i],key_pin_in[i]);
+
+				if(key_tmp == 0)
 				{
 
-						//key_pre = (i+1)|0x9000;
-						//long_key_state = 1;
-						return (0);
+					key_pre = i+1;
+					return (i+1);
 				}
-				key_pre = i+1;
-				//return (i+1);
-				break;
 			}
 		}
 	}
 
 
 	
-	if((key_pre>0x9000)&& (key_pre&0x9000 == (i+1)) && i<20)
-	{
-		if(long_key_state)
-		{
-			long_key_state = 0;
-		}
-
-		key_pre = 0;
-		return (i+1);
-
-	}
-
-	
 	
 	if((key_pre && key_pre!=(i+1))||(key_pre && i==20))
 	{
-		if(long_key_state)
-		{
-			long_key_state = 0;
-			key_pre = 0;
-			return 0;
-		}
 		
 		i = key_pre|0x8000;
 		key_pre = 0;
@@ -239,6 +247,9 @@ static u32 key_ctl_check(void)
 	}
 	return 0;
 }
+
+
+u8 power_state = 1;
 
 
 
@@ -260,33 +271,64 @@ void key_handle(u32 val)
 		switch(tmp)
 		{
 		case KEY_IN_1_PD5:
+
+			if(power_state==1)
+				{
+				power_state = 0;
+			}
+			else
+				{
 			out_port_set_all(0);
 			Delay_ms(50);
+			
 			out_port_reverse_pin(OUT_PD4);
+				}
 			break;
 
 		case KEY_IN_2_PA1:
 			out_port_set_all(0);
 			Delay_ms(50);
-			out_port_set_pin(OUT_PD3,1);
+
+			if(led_out_state_table[OUT_PD3] == 0)
+				out_port_set_pin(OUT_PD3,1);
+			else
+				out_port_set_pin(OUT_PD3,0);
+			
 			break;
 
 		case KEY_IN_3_PA2:
 			out_port_set_all(0);
 			Delay_ms(50);
-			out_port_set_pin(OUT_PD2,1);
+
+			
+			if(led_out_state_table[OUT_PD2] == 0)
+				out_port_set_pin(OUT_PD2,1);
+			else
+				out_port_set_pin(OUT_PD2,0);
+
 			break;
 
 			
 		case KEY_IN_4_PA3:
 			out_port_set_all(0);
 			Delay_ms(50);
-			out_port_set_pin(OUT_PC6,1);
+
+
+			
+			if(led_out_state_table[OUT_PC6] == 0)
+				out_port_set_pin(OUT_PC6,1);
+			else
+				out_port_set_pin(OUT_PC6,0);
+
+			//out_port_set_pin(OUT_PC6,1);
 			Delay_ms(50);
 
-			out_port_set_all(0);
-			Delay_ms(50);
-			out_port_set_pin(OUT_PC4,1);
+			if(led_out_state_table[OUT_PC4] == 0)
+				out_port_set_pin(OUT_PC4,1);
+			else
+				out_port_set_pin(OUT_PC4,0);
+
+			//out_port_set_pin(OUT_PC4,1);
 
 			
 			break;
@@ -294,12 +336,21 @@ void key_handle(u32 val)
 		case KEY_IN_5_PB4:
 			out_port_set_all(0);
 			Delay_ms(50);
-			out_port_set_pin(OUT_PC7,1);
+			//out_port_set_pin(OUT_PC7,1);
+
+			if(led_out_state_table[OUT_PC7] == 0)
+				out_port_set_pin(OUT_PC7,1);
+			else
+				out_port_set_pin(OUT_PC7,0);
+
+
 			Delay_ms(50);
 
-			out_port_set_all(0);
-			Delay_ms(50);
-			out_port_set_pin(OUT_PC4,1);
+			if(led_out_state_table[OUT_PC4] == 0)
+				out_port_set_pin(OUT_PC4,1);
+			else
+				out_port_set_pin(OUT_PC4,0);
+
 
 			
 			break;
@@ -307,12 +358,23 @@ void key_handle(u32 val)
 		case KEY_IN_6_PB5:
 			out_port_set_all(0);
 			Delay_ms(50);
-			out_port_set_pin(OUT_PC5,1);
+			//out_port_set_pin(OUT_PC5,1);
+
+			
+			if(led_out_state_table[OUT_PC5] == 0)
+				out_port_set_pin(OUT_PC5,1);
+			else
+				out_port_set_pin(OUT_PC5,0);
+
+
+
 			Delay_ms(50);
 
-			out_port_set_all(0);
-			Delay_ms(50);
-			out_port_set_pin(OUT_PC4,1);
+			if(led_out_state_table[OUT_PC4] == 0)
+				out_port_set_pin(OUT_PC4,1);
+			else
+				out_port_set_pin(OUT_PC4,0);
+
 
 			
 			break;			
@@ -335,23 +397,25 @@ void key_handle(u32 val)
 
 uint8_t Key_Scan(void)
 {
-	u32 k;
+	static u32 k;
 
 	k = key_ctl_check();
-	if(k)
+	if(k != 0)
 	{
 		
 		key_handle(k);
 
 	}
 
-	if(voltage_sys_error_overtime_cnt > 1000*60*10)
+	if(voltage_sys_error_overtime_cnt > (u32)(600000))
 	{
 		out_port_set_pin(OUT_PD4,0);
 	}
-	else if(voltage_sys_error_overtime_cnt > 1000*60*3)
+	else if(voltage_sys_error_overtime_cnt > (u32)(180000))
 	{
 		out_port_set_all(0);
 	}
+
+	return 0;
 } 
 
