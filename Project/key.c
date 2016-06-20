@@ -337,16 +337,16 @@ void key_handle(u32 val)
 			check_out_clear();
 			Delay_ms(50);
 
+				out_port_reverse_pin(OUT_PC4);
 
 			
+			Delay_ms(50);
 
 				out_port_reverse_pin(OUT_PC6);
 
 			//out_port_set_pin(OUT_PC6,1);
-			Delay_ms(50);
 
 
-				out_port_reverse_pin(OUT_PC4);
 
 			//out_port_set_pin(OUT_PC4,1);
 
@@ -360,14 +360,14 @@ void key_handle(u32 val)
 			Delay_ms(50);
 			//out_port_set_pin(OUT_PC7,1);
 
+			
+			out_port_reverse_pin(OUT_PC4);
 
+				Delay_ms(50);
 				out_port_reverse_pin(OUT_PC7);
 
 
-			Delay_ms(50);
 
-
-				out_port_reverse_pin(OUT_PC4);
 
 
 			
@@ -380,16 +380,16 @@ void key_handle(u32 val)
 			Delay_ms(50);
 			//out_port_set_pin(OUT_PC5,1);
 
+			out_port_reverse_pin(OUT_PC4);
 			
+			Delay_ms(50);
 
 				out_port_reverse_pin(OUT_PC5);
 
 
 
-			Delay_ms(50);
 
 
-				out_port_reverse_pin(OUT_PC4);
 
 
 			
