@@ -33,27 +33,19 @@ void Key_Init()
 	GPIO_Init(GPIOD,GPIO_PIN_4, GPIO_MODE_OUT_PP_HIGH_FAST); //
 
 
-	GPIO_WriteHigh(GPIOD,GPIO_PIN_4);
+
 	GPIO_WriteLow(GPIOD,GPIO_PIN_2);
 	GPIO_WriteLow(GPIOD,GPIO_PIN_3);
-
-
-//GPIO_WriteHigh(GPIOD,GPIO_PIN_2);
-
-
-
 	GPIO_WriteLow(GPIOC,GPIO_PIN_4);
 	GPIO_WriteLow(GPIOC,GPIO_PIN_5);
 	GPIO_WriteLow(GPIOC,GPIO_PIN_6);
 	GPIO_WriteLow(GPIOC,GPIO_PIN_7);
 
 
+
+	GPIO_WriteHigh(GPIOD,GPIO_PIN_4);
 	
-	GPIO_WriteHigh(GPIOC,GPIO_PIN_4);
-	
-	GPIO_WriteHigh(GPIOC,GPIO_PIN_5);
-	GPIO_WriteLow(GPIOC,GPIO_PIN_5);
-	GPIO_WriteLow(GPIOC,GPIO_PIN_4);
+
 
 	
   
@@ -113,7 +105,7 @@ GPIO_Pin_TypeDef key_pin_out[]=
 };
 
 
-
+#if 1
 void out_port_set_all(u8 mode)
 {
 	u8 i;
@@ -143,6 +135,34 @@ void out_port_set_all(u8 mode)
 
 }
 
+#else
+void out_port_set_all(u8 mode)
+{
+	u8 i;
+
+	if(mode)
+	{
+		for(i=0;i<KEY_OUT_PINS_NUM;i++)
+		{
+			GPIO_WriteHigh(key_port_out[i],key_pin_out[i]);
+
+			//led_out_state_table[i] = 1;
+		}
+	}
+	else
+	{
+
+		for(i=0;i<KEY_OUT_PINS_NUM;i++)
+		{
+			GPIO_WriteLow(key_port_out[i],key_pin_out[i]);
+
+			//led_out_state_table[i] = 0;
+
+		}
+	}
+
+}
+#endif
 
 enum out_pin_type  pre_out_state = OUT_NONE;
 
@@ -281,6 +301,8 @@ u8 power_state = 1;
 void key_handle(u32 val)
 {
 	u32 tmp;
+
+	u16 state_pre;
 	
 	if(val>0x8000 && val<key_to_release(KEY_IN_NORMAL))
 	{
@@ -313,38 +335,74 @@ void key_handle(u32 val)
 			//out_port_set_all(0);
 			
 
-			if(led_out_state_table[OUT_PD3] != 3)
-				check_out_clear();
+			state_pre = GPIO_ReadInputPin(key_port_out[OUT_PD3],key_pin_out[OUT_PD3]);
+			
+			check_out_clear();
 			Delay_ms(50);
 
-			out_port_reverse_pin(OUT_PD3);
+				if(state_pre)
+				{
+				
+					GPIO_WriteLow(key_port_out[OUT_PD3],key_pin_out[OUT_PD3]);
+				}
+				else
+				{
+					GPIO_WriteHigh(key_port_out[OUT_PD3],key_pin_out[OUT_PD3]);
+				}
+
 			
 			break;
 
 		case KEY_IN_3_PA2:
-			if(led_out_state_table[OUT_PD2] != 3)
+
+
+
+			state_pre = GPIO_ReadInputPin(key_port_out[OUT_PD2],key_pin_out[OUT_PD2]);
+			
 			check_out_clear();
 			Delay_ms(50);
 
-				out_port_reverse_pin(OUT_PD2);
+				if(state_pre)
+				{
+				
+					GPIO_WriteLow(key_port_out[OUT_PD2],key_pin_out[OUT_PD2]);
+				}
+				else
+				{
+					GPIO_WriteHigh(key_port_out[OUT_PD2],key_pin_out[OUT_PD2]);
+				}
+				
 
 			break;
 
 			
 		case KEY_IN_4_PA3:
 
-			if(led_out_state_table[OUT_PC6] != 3)
-			check_out_clear();
-			Delay_ms(50);
 
-				out_port_reverse_pin(OUT_PC4);
+			state_pre = GPIO_ReadInputPin(key_port_out[OUT_PC6],key_pin_out[OUT_PC6]);
+
+			check_out_clear();
 
 			
 			Delay_ms(50);
 
-				out_port_reverse_pin(OUT_PC6);
+			if(state_pre)
+			{
+			
+				GPIO_WriteLow(key_port_out[OUT_PC4],key_pin_out[OUT_PC4]);
+				Delay_ms(50);
+				GPIO_WriteLow(key_port_out[OUT_PC6],key_pin_out[OUT_PC6]);
 
-			//out_port_set_pin(OUT_PC6,1);
+				}
+			else
+			{
+				GPIO_WriteHigh(key_port_out[OUT_PC6],key_pin_out[OUT_PC6]);
+				Delay_ms(50);
+
+				GPIO_WriteHigh(key_port_out[OUT_PC4],key_pin_out[OUT_PC4]);
+
+			}
+
 
 
 
@@ -355,19 +413,29 @@ void key_handle(u32 val)
 
 		case KEY_IN_5_PB4:
 
-			if(led_out_state_table[OUT_PC7] != 3)
+			state_pre = GPIO_ReadInputPin(key_port_out[OUT_PC7],key_pin_out[OUT_PC7]);
+
 			check_out_clear();
-			Delay_ms(50);
-			//out_port_set_pin(OUT_PC7,1);
 
 			
-			out_port_reverse_pin(OUT_PC4);
+			Delay_ms(50);
 
+			if(state_pre)
+			{
+			
+				GPIO_WriteLow(key_port_out[OUT_PC4],key_pin_out[OUT_PC4]);
 				Delay_ms(50);
-				out_port_reverse_pin(OUT_PC7);
+				GPIO_WriteLow(key_port_out[OUT_PC7],key_pin_out[OUT_PC7]);
 
+				}
+			else
+			{
+				GPIO_WriteHigh(key_port_out[OUT_PC7],key_pin_out[OUT_PC7]);
+				Delay_ms(50);
 
+				GPIO_WriteHigh(key_port_out[OUT_PC4],key_pin_out[OUT_PC4]);
 
+			}
 
 
 			
@@ -375,21 +443,30 @@ void key_handle(u32 val)
 
 		case KEY_IN_6_PB5:
 
-			if(led_out_state_table[OUT_PC5] != 3)
-			check_out_clear();
-			Delay_ms(50);
-			//out_port_set_pin(OUT_PC5,1);
 
-			out_port_reverse_pin(OUT_PC4);
+			state_pre = GPIO_ReadInputPin(key_port_out[OUT_PC5],key_pin_out[OUT_PC5]);
+
+			check_out_clear();
+
 			
 			Delay_ms(50);
 
-				out_port_reverse_pin(OUT_PC5);
+			if(state_pre)
+			{
+			
+				GPIO_WriteLow(key_port_out[OUT_PC4],key_pin_out[OUT_PC4]);
+				Delay_ms(50);
+				GPIO_WriteLow(key_port_out[OUT_PC5],key_pin_out[OUT_PC5]);
 
+				}
+			else
+			{
+				GPIO_WriteHigh(key_port_out[OUT_PC5],key_pin_out[OUT_PC5]);
+				Delay_ms(50);
 
+				GPIO_WriteHigh(key_port_out[OUT_PC4],key_pin_out[OUT_PC4]);
 
-
-
+			}
 
 
 			

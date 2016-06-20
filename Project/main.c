@@ -176,7 +176,7 @@ main(void)
 { 
 	my_device_init();
 
-	Delay_ms(500);
+	Delay_ms(1200);
 
 
 	voltage_sys_error_overtime_cnt = 0;//ÓÃÓÚ¼ì²â°´¼ü
