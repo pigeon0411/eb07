@@ -1,6 +1,11 @@
 #include "key.h"
 
 
+
+u8 poweroff_3s_state = 0;
+
+
+
 extern void Delay_ms(__IO uint32_t nTime);
 
 
@@ -33,10 +38,10 @@ void Key_Init()
 	GPIO_Init(GPIOD,GPIO_PIN_4, GPIO_MODE_OUT_PP_HIGH_FAST); //
 
 
+	GPIO_WriteLow(GPIOC,GPIO_PIN_4);
 
 	GPIO_WriteLow(GPIOD,GPIO_PIN_2);
 	GPIO_WriteLow(GPIOD,GPIO_PIN_3);
-	GPIO_WriteLow(GPIOC,GPIO_PIN_4);
 	GPIO_WriteLow(GPIOC,GPIO_PIN_5);
 	GPIO_WriteLow(GPIOC,GPIO_PIN_6);
 	GPIO_WriteLow(GPIOC,GPIO_PIN_7);
@@ -308,21 +313,23 @@ void key_handle(u32 val)
 	{
 		tmp = val&(~0x8000);
 
+		//poweroff_3s_state = 0;
 
 		if(tmp >=KEY_IN_2_PA1 && tmp<=KEY_IN_6_PB5)
 		{
 			voltage_sys_error_overtime_cnt = 0;
+			poweroff_3s_state = 0;
 		}
 		
 		switch(tmp)
 		{
 		case KEY_IN_1_PD5:
 
-			if(power_state==1)
-				{
-				power_state = 0;
-			}
-			else
+//			if(power_state==1)
+//				{
+//				power_state = 0;
+//			}
+//			else
 				{
 			out_port_set_all(0);
 			Delay_ms(50);
@@ -492,7 +499,6 @@ uint8_t Key_Scan(void)
 {
 	static u32 k;
 
-
 	
 
 	k = key_ctl_check();
@@ -500,15 +506,18 @@ uint8_t Key_Scan(void)
 	{
 		
 		key_handle(k);
-
+		
 	}
 
-	if(voltage_sys_error_overtime_cnt > (u32)(600000))
+	if(voltage_sys_error_overtime_cnt > (u32)(600000) && poweroff_3s_state!= 2)
 	{
+		poweroff_3s_state = 2;
 		out_port_set_pin(OUT_PD4,0);
 	}
-	else if(voltage_sys_error_overtime_cnt > (u32)(180000))
+	else if(voltage_sys_error_overtime_cnt > (u32)(180000) && poweroff_3s_state != 1)
+	//else if(voltage_sys_error_overtime_cnt > (u32)(5000))
 	{
+		poweroff_3s_state = 1;
 		out_port_set_all(0);
 	}
 
